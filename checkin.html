@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Frank — Daily Check-in</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #0f1419;
+      color: #e7e9ea;
+      padding: 16px;
+      padding-bottom: 80px;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+    h1 { font-size: 1.25rem; margin-bottom: 4px; }
+    .sub { color: #71767b; font-size: 0.85rem; margin-bottom: 20px; }
+    .card {
+      background: #1a1f26;
+      border: 1px solid #2f3336;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+    .card h2 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: #71767b; margin-bottom: 12px; }
+    label { display: block; font-size: 0.9rem; margin-bottom: 8px; color: #b0b3b8; }
+    input[type="date"], input[type="number"], input[type="text"], textarea, select {
+      width: 100%;
+      background: #0f1419;
+      border: 1px solid #2f3336;
+      border-radius: 8px;
+      color: #e7e9ea;
+      padding: 12px;
+      font-size: 1rem;
+      margin-bottom: 12px;
+    }
+    textarea { min-height: 72px; resize: vertical; }
+    .slider-row { margin-bottom: 14px; }
+    .slider-row .top { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.9rem; }
+    .slider-row .score { font-weight: 700; color: #1d9bf0; font-size: 1.1rem; }
+    input[type="range"] { width: 100%; accent-color: #1d9bf0; }
+    .yn-row { display: flex; gap: 8px; margin-bottom: 12px; }
+    .yn-btn {
+      flex: 1;
+      padding: 12px;
+      border: 1px solid #2f3336;
+      border-radius: 8px;
+      background: #0f1419;
+      color: #e7e9ea;
+      font-size: 1rem;
+      cursor: pointer;
+      text-align: center;
+    }
+    .yn-btn.active-yes { background: #0d3d2a; border-color: #00ba7c; color: #00ba7c; }
+    .yn-btn.active-no { background: #3d1a1a; border-color: #f4212e; color: #f4212e; }
+    .save-btn {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      padding: 16px;
+      background: #0f1419;
+      border-top: 1px solid #2f3336;
+    }
+    .save-btn button {
+      width: 100%;
+      max-width: 448px;
+      margin: 0 auto;
+      display: block;
+      padding: 16px;
+      background: #1d9bf0;
+      color: #fff;
+      border: none;
+      border-radius: 999px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .save-btn button:active { opacity: 0.85; }
+    .streak { text-align: center; padding: 12px; }
+    .streak-num { font-size: 2rem; font-weight: 800; color: #00ba7c; }
+    .streak-label { font-size: 0.8rem; color: #71767b; }
+    .history-item {
+      border-bottom: 1px solid #2f3336;
+      padding: 10px 0;
+      font-size: 0.85rem;
+    }
+    .history-item:last-child { border-bottom: none; }
+    .history-date { color: #1d9bf0; font-weight: 600; }
+    .history-bad { color: #f4212e; }
+    .tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+    .tab {
+      flex: 1;
+      padding: 10px;
+      text-align: center;
+      border-radius: 8px;
+      background: #1a1f26;
+      border: 1px solid #2f3336;
+      color: #71767b;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+    .tab.active { background: #1d3a52; border-color: #1d9bf0; color: #1d9bf0; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+    .copy-btn {
+      width: 100%;
+      padding: 12px;
+      background: transparent;
+      border: 1px solid #2f3336;
+      border-radius: 8px;
+      color: #1d9bf0;
+      font-size: 0.9rem;
+      margin-top: 8px;
+      cursor: pointer;
+    }
+    .toast {
+      position: fixed;
+      top: 16px; left: 50%;
+      transform: translateX(-50%);
+      background: #00ba7c;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      display: none;
+      z-index: 100;
+    }
+    .rules { font-size: 0.85rem; color: #b0b3b8; line-height: 1.5; }
+    .rules li { margin-bottom: 8px; margin-left: 16px; }
+  </style>
+</head>
+<body>
+  <div class="toast" id="toast"></div>
+  <h1>Daily Check-in</h1>
+  <p class="sub">2 minutes. Behavior, not feelings. Saves on this phone.</p>
+
+  <div class="card streak">
+    <div class="streak-num" id="streak">0</div>
+    <div class="streak-label">day streak (financial action or clean pressure day)</div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="evening">Tonight</div>
+    <div class="tab" data-tab="morning">Tomorrow AM</div>
+    <div class="tab" data-tab="history">History</div>
+  </div>
+
+  <div class="panel active" id="panel-evening">
+    <div class="card">
+      <h2>Evening scorecard</h2>
+      <label>Date</label>
+      <input type="date" id="date">
+
+      <div class="slider-row">
+        <div class="top"><span>Pressure on her</span><span class="score" id="pressure-val">5</span></div>
+        <input type="range" id="pressure" min="0" max="10" value="5">
+      </div>
+
+      <label>Demanded an answer? (question that required response)</label>
+      <div class="yn-row" data-field="demanded">
+        <div class="yn-btn" data-v="Y">Yes</div>
+        <div class="yn-btn" data-v="N">No</div>
+      </div>
+
+      <label>Guilt, pursue, or smother?</label>
+      <div class="yn-row" data-field="smother">
+        <div class="yn-btn" data-v="Y">Yes</div>
+        <div class="yn-btn" data-v="N">No</div>
+      </div>
+
+      <label>What happened (if yes above)</label>
+      <textarea id="what" placeholder="Be specific. No story — just facts."></textarea>
+
+      <div class="slider-row">
+        <div class="top"><span>Space given</span><span class="score" id="space-val">5</span></div>
+        <input type="range" id="space" min="0" max="10" value="5">
+      </div>
+
+      <div class="slider-row">
+        <div class="top"><span>Self-sufficiency</span><span class="score" id="self-val">5</span></div>
+        <input type="range" id="self" min="0" max="10" value="5">
+      </div>
+
+      <label>Financial action today?</label>
+      <div class="yn-row" data-field="financial">
+        <div class="yn-btn" data-v="Y">Yes</div>
+        <div class="yn-btn" data-v="N">No</div>
+      </div>
+
+      <label>Amount sent/logged ($)</label>
+      <input type="number" id="amount" placeholder="0" min="0">
+
+      <label>Caught myself in the moment</label>
+      <input type="text" id="caught" placeholder="Or 'no'">
+
+      <label>Tomorrow — one specific fix</label>
+      <input type="text" id="fix" placeholder="e.g. Wait 30 min before texting her">
+    </div>
+  </div>
+
+  <div class="panel" id="panel-morning">
+    <div class="card">
+      <h2>Morning intention</h2>
+      <label>Today I will NOT</label>
+      <input type="text" id="will-not" value="pressure her, guilt her, or ask extraction questions">
+
+      <label>Today I will</label>
+      <input type="text" id="will-do" placeholder="Make 1 statement without needing a response">
+
+      <label>If I want to text her, I will instead</label>
+      <input type="text" id="urge-plan" value="Wait 30 min. Write it in Notes first.">
+
+      <label>Financial target today</label>
+      <input type="text" id="money-target" placeholder="Log payment / check balance">
+    </div>
+    <div class="card">
+      <h2>Three rules</h2>
+      <ul class="rules">
+        <li>Statements, not extraction</li>
+        <li>Pay before you plead</li>
+        <li>Space is a gift, not abandonment</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-history">
+    <div class="card" id="history-list">
+      <h2>Last 14 days</h2>
+      <p style="color:#71767b;font-size:0.85rem;">No entries yet.</p>
+    </div>
+    <button class="copy-btn" id="copy-week">Copy this week for AI check-in</button>
+  </div>
+
+  <div class="save-btn">
+    <button id="save">Save tonight's check-in</button>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'frank_checkins';
+    const fields = {};
+
+    document.getElementById('date').valueAsDate = new Date();
+
+    document.querySelectorAll('.tab').forEach(t => {
+      t.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+        document.querySelectorAll('.panel').forEach(x => x.classList.remove('active'));
+        t.classList.add('active');
+        document.getElementById('panel-' + t.dataset.tab).classList.add('active');
+        document.getElementById('save').textContent =
+          t.dataset.tab === 'morning' ? 'Save morning intention' : "Save tonight's check-in";
+      });
+    });
+
+    ['pressure', 'space', 'self'].forEach(id => {
+      const el = document.getElementById(id);
+      const val = document.getElementById(id + '-val');
+      el.addEventListener('input', () => { val.textContent = el.value; });
+    });
+
+    document.querySelectorAll('.yn-row').forEach(row => {
+      fields[row.dataset.field] = null;
+      row.querySelectorAll('.yn-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          row.querySelectorAll('.yn-btn').forEach(b => b.className = 'yn-btn');
+          btn.classList.add(btn.dataset.v === 'Y' ? 'active-yes' : 'active-no');
+          fields[row.dataset.field] = btn.dataset.v;
+        });
+      });
+    });
+
+    function load() {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    }
+
+    function saveEntry(entry) {
+      const all = load();
+      const idx = all.findIndex(e => e.date === entry.date && e.type === entry.type);
+      if (idx >= 0) all[idx] = entry;
+      else all.unshift(entry);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(all.slice(0, 90)));
+      updateStreak();
+      renderHistory();
+    }
+
+    function updateStreak() {
+      const all = load().filter(e => e.type === 'evening');
+      let streak = 0;
+      const today = new Date();
+      for (let i = 0; i < 90; i++) {
+        const d = new Date(today);
+        d.setDate(d.getDate() - i);
+        const ds = d.toISOString().slice(0, 10);
+        const entry = all.find(e => e.date === ds);
+        if (!entry) break;
+        const good = entry.financial === 'Y' || (entry.pressure <= 3 && entry.smother === 'N');
+        if (good) streak++;
+        else break;
+      }
+      document.getElementById('streak').textContent = streak;
+    }
+
+    function renderHistory() {
+      const all = load().filter(e => e.type === 'evening').slice(0, 14);
+      const el = document.getElementById('history-list');
+      if (!all.length) return;
+      el.innerHTML = '<h2>Last 14 days</h2>' + all.map(e => {
+        const bad = e.pressure > 6 || e.smother === 'Y' || e.demanded === 'Y';
+        return `<div class="history-item">
+          <span class="history-date">${e.date}</span>
+          ${bad ? '<span class="history-bad"> — rough day</span>' : ' — clean'}
+          <br>Pressure ${e.pressure}/10 · Space ${e.space}/10 · $${e.amount || 0}
+          ${e.fix ? '<br>Fix: ' + e.fix : ''}
+        </div>`;
+      }).join('');
+    }
+
+    function toast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.style.display = 'block';
+      setTimeout(() => t.style.display = 'none', 2000);
+    }
+
+    document.getElementById('save').addEventListener('click', () => {
+      const activeTab = document.querySelector('.tab.active').dataset.tab;
+      const date = document.getElementById('date').value;
+
+      if (activeTab === 'morning') {
+        saveEntry({
+          type: 'morning', date,
+          willNot: document.getElementById('will-not').value,
+          willDo: document.getElementById('will-do').value,
+          urgePlan: document.getElementById('urge-plan').value,
+          moneyTarget: document.getElementById('money-target').value,
+        });
+        toast('Morning saved');
+        return;
+      }
+
+      saveEntry({
+        type: 'evening', date,
+        pressure: +document.getElementById('pressure').value,
+        demanded: fields.demanded,
+        smother: fields.smother,
+        what: document.getElementById('what').value,
+        space: +document.getElementById('space').value,
+        self: +document.getElementById('self').value,
+        financial: fields.financial,
+        amount: document.getElementById('amount').value,
+        caught: document.getElementById('caught').value,
+        fix: document.getElementById('fix').value,
+      });
+      toast('Saved — good work showing up');
+    });
+
+    document.getElementById('copy-week').addEventListener('click', () => {
+      const all = load().filter(e => e.type === 'evening').slice(0, 7);
+      const text = all.length
+        ? 'WEEKLY CHECK-IN:\n' + all.map(e =>
+            `${e.date}: pressure ${e.pressure}, smother ${e.smother}, financial ${e.financial} $${e.amount||0}, fix: ${e.fix||'—'}`
+          ).join('\n')
+        : 'No check-ins yet this week.';
+      navigator.clipboard.writeText(text).then(() => toast('Copied — paste to AI'));
+    });
+
+    updateStreak();
+    renderHistory();
+  </script>
+</body>
+</html>

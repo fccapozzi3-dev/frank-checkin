@@ -1,0 +1,77 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Frank Independence Plan//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Frank Accountability
+BEGIN:VEVENT
+UID:frank-checkin-evening@independence-plan
+DTSTAMP:20260704T120000Z
+DTSTART;TZID=America/New_York:20260704T210000
+DTEND;TZID=America/New_York:20260704T211500
+RRULE:FREQ=DAILY
+SUMMARY:Check-in — 2 min (open phone app or text AI)
+DESCRIPTION:Evening scorecard. Open phone_checkin.html or text AI:\n\ncheckin\npressure:\ndemanded:\nsmother:\nmoney sent:\ntomorrow fix:
+BEGIN:VALARM
+TRIGGER:-PT0M
+ACTION:DISPLAY
+DESCRIPTION:Check-in time — 2 minutes
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:frank-weekly-review@independence-plan
+DTSTAMP:20260704T120000Z
+DTSTART;TZID=America/New_York:20260706T200000
+DTEND;TZID=America/New_York:20260706T203000
+RRULE:FREQ=WEEKLY;BYDAY=SU
+SUMMARY:Weekly review — paste to AI
+DESCRIPTION:Open phone_checkin.html → History → Copy this week for AI check-in\n\nText AI: week\n\nThen paste your summary.
+BEGIN:VALARM
+TRIGGER:-PT0M
+ACTION:DISPLAY
+DESCRIPTION:Sunday weekly review
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:frank-payday@independence-plan
+DTSTAMP:20260704T120000Z
+DTSTART;TZID=America/New_York:20260711T080000
+DTEND;TZID=America/New_York:20260711T083000
+RRULE:FREQ=WEEKLY;BYDAY=FR
+SUMMARY:PAYDAY — Send $1200 to wife. Text AI: paid $___
+DESCRIPTION:1. Transfer payment from YOUR account\n2. Log in phone check-in app\n3. Text AI: paid $[amount]\n\nRamp if needed: wk1 $600 / wk2 $900 / wk3+ $1200
+BEGIN:VALARM
+TRIGGER:-PT0M
+ACTION:DISPLAY
+DESCRIPTION:Payday — send her payment NOW
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:frank-urge-pause@independence-plan
+DTSTAMP:20260704T120000Z
+DTSTART;TZID=America/New_York:20260704T120000
+DTEND;TZID=America/New_York:20260704T121000
+RRULE:FREQ=DAILY
+SUMMARY:Before texting her — WAIT 30 min
+DESCRIPTION:Urge to text/call her?\n\n1. Do NOT send yet\n2. Write it in Notes first\n3. Wait 30 minutes\n4. Re-read it. Still need to send?\n\nStatements only. No extraction questions.
+BEGIN:VALARM
+TRIGGER:-PT0M
+ACTION:DISPLAY
+DESCRIPTION:Pause before contacting her
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:frank-morning@independence-plan
+DTSTAMP:20260704T120000Z
+DTSTART;TZID=America/New_York:20260705T070000
+DTEND;TZID=America/New_York:20260705T071500
+RRULE:FREQ=DAILY
+SUMMARY:Morning intention — 1 min
+DESCRIPTION:Open phone_checkin.html → Tomorrow AM tab\n\nToday I will NOT: pressure / guilt / extraction questions\nToday I will: one statement without needing response\nFinancial: log or send payment
+BEGIN:VALARM
+TRIGGER:-PT0M
+ACTION:DISPLAY
+DESCRIPTION:Morning intention — 1 minute
+END:VALARM
+END:VEVENT
+END:VCALENDAR
